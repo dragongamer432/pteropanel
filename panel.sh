@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # ====================================================
 #      PTERODACTYL INSTALL / USER / UPDATE / REMOVE
@@ -14,11 +15,27 @@ install_ptero() {
     clear
     echo -e "${CYAN}"
     echo "┌──────────────────────────────────────────────┐"
-    echo "          🚀 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗜𝗻𝘀𝘁𝗮𝗹𝗹𝗮𝘁𝗶𝗼𝗻              "
+    echo "          🚀 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗜𝗻𝘀𝘁𝗮𝗹𝗹𝗮𝘁𝗶𝗼𝗻"
     echo "└──────────────────────────────────────────────┘${NC}"
-    bash <(curl -s https://raw.githubusercontent.com/dragongamer432/pteropanel/refs/heads/main/pterodactyl.sh)
+
+    bash <(curl -fsSL "https://raw.githubusercontent.com/dragongamer432/pteropanel/refs/heads/main/pterodactyl.sh")
+
     echo -e "${GREEN}✔ Installation Complete${NC}"
-    read -p "Press Enter to return..."
+    read -r -p "Press Enter to return..."
+}
+
+# ================== PREMIUM INSTALL FUNCTION ==================
+install_ptero_premium() {
+    clear
+    echo -e "${CYAN}"
+    echo "┌──────────────────────────────────────────────┐"
+    echo "          ⭐ 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗣𝗿𝗲𝗺𝗶𝘂𝗺"
+    echo "└──────────────────────────────────────────────┘${NC}"
+
+    bash <(curl -fsSL "https://raw.githubusercontent.com/dragongamer432/pteropanel/refs/heads/main/pteropremium./pterop.sh")
+
+    echo -e "${GREEN}✔ Premium Installer Finished${NC}"
+    read -r -p "Press Enter to return..."
 }
 
 # ================== CREATE USER ==================
@@ -26,20 +43,20 @@ create_user() {
     clear
     echo -e "${CYAN}"
     echo "┌──────────────────────────────────────────────┐"
-    echo "         👤 𝗖𝗿𝗲𝗮𝘁𝗲 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗨𝘀𝗲𝗿              "
+    echo "         👤 𝗖𝗿𝗲𝗮𝘁𝗲 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗨𝘀𝗲𝗿"
     echo "└──────────────────────────────────────────────┘${NC}"
 
     if [ ! -d /var/www/pterodactyl ]; then
         echo -e "${RED}❌ Panel not installed!${NC}"
-        read -p "Press Enter to return..."
+        read -r -p "Press Enter to return..."
         return
     fi
 
-    cd /var/www/pterodactyl || exit
+    cd /var/www/pterodactyl || return
     php artisan p:user:make
 
-    echo -e "${GREEN}✔ User created successfully${NC}"
-    read -p "Press Enter to return..."
+    echo -e "${GREEN}✔ User creation command completed.${NC}"
+    read -r -p "Press Enter to return..."
 }
 
 # ================= PANEL UNINSTALL =================
@@ -51,7 +68,9 @@ uninstall_panel() {
     systemctl daemon-reload
 
     echo ">>> Removing cronjob..."
-    crontab -l | grep -v 'php /var/www/pterodactyl/artisan schedule:run' | crontab - || true
+    crontab -l 2>/dev/null |
+        grep -v 'php /var/www/pterodactyl/artisan schedule:run' |
+        crontab - || true
 
     echo ">>> Removing files..."
     rm -rf /var/www/pterodactyl
@@ -73,11 +92,21 @@ uninstall_ptero() {
     clear
     echo -e "${CYAN}"
     echo "┌──────────────────────────────────────────────┐"
-    echo "         🧹 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗨𝗻𝗶𝗻𝘀𝘁𝗮𝗹𝗹𝗮𝘁𝗶𝗼𝗻             "
+    echo "         🧹 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗨𝗻𝗶𝗻𝘀𝘁𝗮𝗹𝗹𝗮𝘁𝗶𝗼𝗻"
     echo "└──────────────────────────────────────────────┘${NC}"
+
+    echo -e "${RED}WARNING: This deletes panel files and the panel database.${NC}"
+    read -r -p "Are you sure? Type YES: " confirm
+
+    if [ "$confirm" != "YES" ]; then
+        echo "Cancelled."
+        read -r -p "Press Enter to return..."
+        return
+    fi
+
     uninstall_panel
     echo -e "${GREEN}✔ Panel Uninstalled (Wings untouched)${NC}"
-    read -p "Press Enter to return..."
+    read -r -p "Press Enter to return..."
 }
 
 # ================= UPDATE FUNCTION =================
@@ -85,52 +114,67 @@ update_panel() {
     clear
     echo -e "${YELLOW}"
     echo "═══════════════════════════════════════════════"
-    echo "        ⚡ 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗣𝗮𝗻𝗲𝗹 𝗨𝗽𝗱𝗮𝘁𝗲 ⚡          "
+    echo "           ⚡ 𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗣𝗮𝗻𝗲𝗹 𝗨𝗽𝗱𝗮𝘁𝗲"
     echo "═══════════════════════════════════════════════${NC}"
 
     cd /var/www/pterodactyl || {
         echo -e "${RED}❌ Panel not found!${NC}"
-        read
+        read -r -p "Press Enter to return..."
         return
     }
 
-    php artisan down
-    curl -L https://github.com/pterodactyl/panel/releases/download/v1.12.1/panel.tar.gz | tar -xzv
-    chmod -R 755 storage/* bootstrap/cache
-    composer install --no-dev --optimize-autoloader
-    php artisan view:clear
-    php artisan config:clear
-    php artisan migrate --seed --force
+    php artisan down || return
+
+    if ! curl -fL "https://github.com/pterodactyl/panel/releases/download/v1.12.1/panel.tar.gz" |
+        tar -xz; then
+        echo -e "${RED}❌ Update download or extraction failed.${NC}"
+        read -r -p "Press Enter to return..."
+        return 1
+    fi
+
+    if ! chmod -R 755 storage/* bootstrap/cache ||
+       ! composer install --no-dev --optimize-autoloader ||
+       ! php artisan view:clear ||
+       ! php artisan config:clear ||
+       ! php artisan migrate --seed --force; then
+        echo -e "${RED}❌ Update failed. Check the panel before bringing it online.${NC}"
+        read -r -p "Press Enter to return..."
+        return 1
+    fi
+
     chown -R www-data:www-data /var/www/pterodactyl/*
     php artisan queue:restart
     php artisan up
 
     echo -e "${GREEN}🎉 Panel Updated Successfully${NC}"
-    read -p "Press Enter to return..."
+    read -r -p "Press Enter to return..."
 }
 
 # ===================== MENU =====================
 while true; do
-clear
-echo -e "${YELLOW}"
-echo "╔═══════════════════════════════════════════════╗"
-echo "║            𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗖𝗼𝗻𝘁𝗿𝗼𝗹 𝗖𝗲𝗻𝘁𝗲𝗿            ║"
-echo "╠═══════════════════════════════════════════════╣"
-echo -e "║ ${GREEN}1) Install Panel${NC}"
-echo -e "║ ${CYAN}2) Create Panel User${NC}"
-echo -e "║ ${YELLOW}3) Update Panel To v1.11.11${NC}"
-echo -e "║ ${RED}4) Uninstall Panel${NC}"
-echo -e "║ 5) Exit"
-echo "╚═══════════════════════════════════════════════╝"
-echo -ne "${CYAN}Select Option → ${NC}"
-read choice
+    clear
+    echo -e "${YELLOW}"
+    echo "╔═══════════════════════════════════════════════╗"
+    echo "║          𝗣𝘁𝗲𝗿𝗼𝗱𝗮𝗰𝘁𝘆𝗹 𝗖𝗼𝗻𝘁𝗿𝗼𝗹 𝗖𝗲𝗻𝘁𝗲𝗿"
+    echo "╠═══════════════════════════════════════════════╣"
+    echo -e "║ ${GREEN}1) Install Panel${NC}"
+    echo -e "║ ${CYAN}2) Create Panel User${NC}"
+    echo -e "║ ${YELLOW}3) Update Panel${NC}"
+    echo -e "║ ${RED}4) Uninstall Panel${NC}"
+    echo -e "║ ${CYAN}5) Install Premium Panel${NC}"
+    echo -e "║ 6) Exit${NC}"
+    echo "╚═══════════════════════════════════════════════╝"
 
-case $choice in
-    1) install_ptero ;;
-    2) create_user ;;
-    3) update_panel ;;
-    4) uninstall_ptero ;;
-    5) clear; exit ;;
-    *) echo -e "${RED}Invalid option...${NC}"; sleep 1 ;;
-esac
+    echo -ne "${CYAN}Select Option → ${NC}"
+    read -r choice
+
+    case "$choice" in
+        1) install_ptero ;;
+        2) create_user ;;
+        3) update_panel ;;
+        4) uninstall_ptero ;;
+        5) install_ptero_premium ;;
+        6) clear; exit 0 ;;
+        *) echo -e "${RED}Invalid option...${NC}"; sleep 1 ;;
+    esac
 done
